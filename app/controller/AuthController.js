@@ -1,21 +1,21 @@
 const {
   UserModel,
   UserRegistrationValidationSchema,
-  UserLoginValidationSchema
+  UserLoginValidationSchema,
 } = require("../model/user");
+
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+const isProduction = process.env.NODE_ENV === "production";
+
 class AuthController {
-  // ---------------- Registration ----------------
+
   async registerUser(req, res) {
     try {
-      // Validation
       const { error, value } = UserRegistrationValidationSchema.validate(
         req.body,
-        {
-          abortEarly: false,
-        },
+        { abortEarly: false }
       );
 
       if (error) {
@@ -29,9 +29,10 @@ class AuthController {
 
       const existsUser = await UserModel.findOne({ email });
       if (existsUser) {
-        return res
-          .status(400)
-          .json({ success: false, message: "Email already exists" });
+        return res.status(400).json({
+          success: false,
+          message: "Email already exists",
+        });
       }
 
       const salt = await bcrypt.genSalt(10);
@@ -48,22 +49,26 @@ class AuthController {
       return res.status(201).json({
         success: true,
         message: "User created successfully",
-        data: user,
+        data: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        },
       });
     } catch (error) {
-      console.error(error);
-      return res
-        .status(500)
-        .json({ success: false, message: "Internal server error" });
+      console.error("REGISTER ERROR:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error",
+      });
     }
   }
 
-  // ---------------- Login ----------------
   async loginUser(req, res) {
     try {
       const { error, value } = UserLoginValidationSchema.validate(req.body, {
         abortEarly: false,
-        // allowUnknown: false,
       });
 
       if (error) {
@@ -75,58 +80,42 @@ class AuthController {
 
       const { email, password } = value;
 
-      if (!email || !password) {
-        return res.status(400).json({
-          success: false,
-          message: "All input fields are required",
-        });
-      }
-
       const user = await UserModel.findOne({ email });
-      if (!user) {
-        return res.status(404).json({
-          success: false,
-          message: "User not found",
-        });
-      }
+      if (!user)
+        return res.status(404).json({ success: false, message: "User not found" });
 
       const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        return res.status(401).json({
-          success: false,
-          message: "Invalid credentials",
-        });
-      }
+      if (!isMatch)
+        return res.status(401).json({ success: false, message: "Invalid credentials" });
 
       const token = jwt.sign(
         {
-          _id: user._id,
-          name: user.name,
+          id: user._id,
           email: user.email,
           role: user.role,
         },
         process.env.JWT_SECRET_KEY,
-        { expiresIn: "30d" },
+        { expiresIn: "30d" }
       );
 
       const cookieName =
         user.role === "admin"
           ? "adminToken"
           : user.role === "provider"
-            ? "providerToken"
-            : "userToken";
+          ? "providerToken"
+          : "userToken";
 
       res.cookie(cookieName, token, {
         httpOnly: true,
-        secure: false,
-        sameSite: "lax",
+        secure: isProduction,
+        sameSite: isProduction ? "none" : "lax",
       });
 
       return res.status(200).json({
         success: true,
         message: "Login successful",
         role: user.role,
-        token: token,
+        token,
       });
     } catch (error) {
       console.error("LOGIN ERROR:", error);
@@ -137,46 +126,29 @@ class AuthController {
     }
   }
 
-  // login using access token and refresh token
+
   async loginAccessRefresh(req, res) {
     try {
       const { error, value } = UserLoginValidationSchema.validate(req.body, {
         abortEarly: false,
-        allowUnknown: false,
       });
 
-      if (error) {
+      if (error)
         return res.status(400).json({
           success: false,
           message: error.details.map((err) => err.message),
         });
-      }
+
       const { email, password } = value;
 
-      if (!email || !password) {
-        return res.status(400).json({
-          success: false,
-          message: "All input fields are required",
-        });
-      }
-
       const user = await UserModel.findOne({ email });
-      if (!user) {
-        return res.status(404).json({
-          success: false,
-          message: "User not found",
-        });
-      }
+      if (!user)
+        return res.status(404).json({ success: false, message: "User not found" });
 
       const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        return res.status(401).json({
-          success: false,
-          message: "Invalid credentials",
-        });
-      }
+      if (!isMatch)
+        return res.status(401).json({ success: false, message: "Invalid credentials" });
 
-      // Create ACCESS TOKEN (short-lived)
       const accessToken = jwt.sign(
         {
           id: user._id,
@@ -184,33 +156,29 @@ class AuthController {
           role: user.role,
         },
         process.env.JWT_ACCESS_TOKEN_SECRET,
-        { expiresIn: "15m" },
+        { expiresIn: "15m" }
       );
 
-      // Create REFRESH TOKEN (long-lived)
       const refreshToken = jwt.sign(
-        {
-          id: user._id,
-        },
+        { id: user._id },
         process.env.JWT_REFRESH_TOKEN_SECRET,
-        { expiresIn: "7d" },
+        { expiresIn: "7d" }
       );
 
-      // Store refresh token in DB
       user.refreshToken = refreshToken;
       await user.save();
 
       res.cookie("accessToken", accessToken, {
         httpOnly: true,
-        secure: false,
-        sameSite: "lax",
+        secure: isProduction,
+        sameSite: isProduction ? "none" : "lax",
         maxAge: 15 * 60 * 1000,
       });
 
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
-        secure: false,
-        sameSite: "lax",
+        secure: isProduction,
+        sameSite: isProduction ? "none" : "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
@@ -232,22 +200,21 @@ class AuthController {
     }
   }
 
+
   async refreshToken(req, res) {
     try {
       const refreshToken = req.cookies.refreshToken;
-      if (!refreshToken) {
+      if (!refreshToken)
         return res.status(401).json({ message: "Refresh token missing" });
-      }
 
       const decoded = jwt.verify(
         refreshToken,
-        process.env.REFRESH_TOKEN_SECRET,
+        process.env.JWT_REFRESH_TOKEN_SECRET
       );
 
-      const user = await UserModel.findById(decoded._id);
-      if (!user || user.refreshToken !== refreshToken) {
+      const user = await UserModel.findById(decoded.id);
+      if (!user || user.refreshToken !== refreshToken)
         return res.status(403).json({ message: "Invalid refresh token" });
-      }
 
       const newAccessToken = jwt.sign(
         {
@@ -255,14 +222,14 @@ class AuthController {
           email: user.email,
           role: user.role,
         },
-        process.env.JWT_ACCESS_SECRET,
-        { expiresIn: "15m" },
+        process.env.JWT_ACCESS_TOKEN_SECRET,
+        { expiresIn: "15m" }
       );
 
       res.cookie("accessToken", newAccessToken, {
         httpOnly: true,
-        secure: false,
-        sameSite: "lax",
+        secure: isProduction,
+        sameSite: isProduction ? "none" : "lax",
         maxAge: 15 * 60 * 1000,
       });
 
@@ -271,48 +238,62 @@ class AuthController {
         accessToken: newAccessToken,
       });
     } catch (error) {
-      return res
-        .status(403)
-        .json({ message: "Invalid or expired refresh token" });
+      return res.status(403).json({
+        message: "Invalid or expired refresh token",
+      });
     }
   }
 
-  async logout(req, res) {
-    try {
-      const token =
-        req.cookies.userToken ||
-        req.cookies.adminToken ||
-        req.cookies.providerToken;
 
-      if (!token) {
-        return res.status(401).json({ message: "Not logged in" });
-      }
+async logout(req, res) {
+  try {
+    const token =
+      req.cookies.userToken ||
+      req.cookies.adminToken ||
+      req.cookies.providerToken;
 
-      const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-
-      const cookieMap = {
-        user: "userToken",
-        admin: "adminToken",
-        provider: "providerToken",
-      };
-
-      const cookieName = cookieMap[decoded.role];
-
-      res.clearCookie(cookieName, {
-        httpOnly: true,
-        secure: false,
-        sameSite: "lax",
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "Not logged in",
       });
-
-      return res.status(200).json({
-        success: true,
-        message: `${decoded.role} logged out`,
-      });
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ message: "Logout failed" });
     }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+
+    const cookieMap = {
+      user: "userToken",
+      admin: "adminToken",
+      provider: "providerToken",
+    };
+
+    const cookieName = cookieMap[decoded.role];
+
+    if (!cookieName) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid role",
+      });
+    }
+
+    res.clearCookie(cookieName, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: `${decoded.role} logged out successfully`,
+    });
+  } catch (error) {
+    console.error("LOGOUT ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Logout failed",
+    });
   }
+}
 
   async logoutAccessRefresh(req, res) {
     try {
@@ -321,20 +302,20 @@ class AuthController {
       if (refreshToken) {
         await UserModel.updateOne(
           { refreshToken },
-          { $unset: { refreshToken: 1 } },
+          { $set: { refreshToken: null } }
         );
       }
 
       res.clearCookie("accessToken", {
         httpOnly: true,
-        secure: false, // true in production
-        sameSite: "lax",
+        secure: isProduction,
+        sameSite: isProduction ? "none" : "lax",
       });
 
       res.clearCookie("refreshToken", {
         httpOnly: true,
-        secure: false,
-        sameSite: "lax",
+        secure: isProduction,
+        sameSite: isProduction ? "none" : "lax",
       });
 
       return res.status(200).json({
