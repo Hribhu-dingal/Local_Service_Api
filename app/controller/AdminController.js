@@ -26,13 +26,13 @@ class AdminController {
 
   async serviceCreate(req, res) {
     try {
-      const { providerId, title, description, price } = req.body;
-      if (!providerId || !title || !description)
+      const { title, subtitle, content } = req.body;
+      if (!title || !subtitle || !content)
         return res
           .status(400)
           .json({ success: false, message: "Missing required fields" });
 
-      const service = new Service({ providerId, title, description, price });
+      const service = new Service({ title, subtitle, content });
       if (req.file) service.image = req.file.path;
       await service.save();
 
@@ -107,14 +107,14 @@ class AdminController {
 
   async contactCreate(req, res) {
     try {
-      const { name, email, subject, message } = req.body;
-      if (!name || !email || !message)
+      const { name, email, phone, message } = req.body;
+      if (!name || !email || !phone)
         return res.status(400).json({
           success: false,
           message: "Name, email, and message required",
         });
 
-      const contact = new Contact({ name, email, subject, message });
+      const contact = new Contact({ name, email, phone, message });
       await contact.save();
       res.status(201).json({
         success: true,
@@ -134,7 +134,6 @@ class AdminController {
       res.status(500).json({ success: false, message: error.message });
     }
   }
-
 
   //  Users
   async userList(req, res) {
@@ -199,8 +198,6 @@ class AdminController {
     }
   }
 
-  
-
   // Service providers
   async providerList(req, res) {
     try {
@@ -220,21 +217,33 @@ class AdminController {
 
   async providerCreate(req, res) {
     try {
-      const { userId, category, description, address, city, experience } =
-        req.body;
-      if (!userId || !category || !description)
+      const {
+        userId,
+        category,
+        services,
+        location,
+        availability,
+        price,
+        rating,
+        image,
+      } = req.body;
+      if (!userId || !category || !services || !location || !availability)
         return res.status(400).json({
           success: false,
           message: "userId, category, and description required",
         });
 
+      services = JSON.parse(services);
+      availability = JSON.parse(availability);
+
       const provider = new ServiceProvider({
         userId,
         category,
-        description,
-        address,
-        city,
-        experience,
+        services,
+        location,
+        availability,
+        price,
+        rating,
       });
       if (req.file) provider.image = req.file.path;
 
@@ -398,23 +407,6 @@ class AdminController {
       res.status(500).json({ success: false, message: error.message });
     }
   }
-
-      async logout(req, res) {
-        try {
-            res.clearCookie('adminToken');
-            return res.status(200).json({
-                success: true,
-                message: 'Logged out successfully'
-            });
-        } catch (error) {
-            console.error(error);
-            return res.status(500).json({
-                success: false,
-                message: 'Logout failed',
-                error: error.message
-            });
-        }
-    }
 }
 
 module.exports = new AdminController();

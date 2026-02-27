@@ -1,9 +1,8 @@
-// routes/adminApiRoutes.js
-const express = require('express')
-const AdminController = require('../controller/AdminController')
-const { userAuth, roleAuth } = require('../middleware/auth')
-const router = express.Router()
-const ServiceImage = require('../helper/ServiceImage')
+const express = require("express");
+const AdminController = require("../controller/AdminController");
+const { userAuth, roleAuth } = require("../middleware/auth");
+const router = express.Router();
+const ServiceImage = require("../helper/ServiceImage");
 
 // ================= SERVICES =================
 
@@ -32,9 +31,40 @@ const ServiceImage = require('../helper/ServiceImage')
  *                 data:
  *                   type: array
  *                   items:
- *                     $ref: '#/components/schemas/Service'
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         example: 65f2a1b2c3d4e5f678901234
+ *                       name:
+ *                         type: string
+ *                         example: Plumbing
+ *                       description:
+ *                         type: string
+ *                         example: Professional plumbing services
+ *                       price:
+ *                         type: number
+ *                         example: 1500
+ *                       category:
+ *                         type: string
+ *                         example: Home Services
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                       updatedAt:
+ *                         type: string
+ *                         format: date-time
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Server error
  */
-router.get('/service/list',userAuth,roleAuth('admin'),AdminController.serviceList)
+router.get(
+  "/service/list",
+  userAuth,
+  roleAuth("admin"),
+  AdminController.serviceList,
+);
 
 /**
  * @swagger
@@ -74,7 +104,13 @@ router.get('/service/list',userAuth,roleAuth('admin'),AdminController.serviceLis
  *       500:
  *         description: Internal server error
  */
-router.post('/service/create',userAuth,roleAuth('admin'),ServiceImage.single('image'),AdminController.serviceCreate)
+router.post(
+  "/service/create",
+  userAuth,
+  roleAuth("admin"),
+  ServiceImage.single("image"),
+  AdminController.serviceCreate,
+);
 
 /**
  * @swagger
@@ -117,7 +153,13 @@ router.post('/service/create',userAuth,roleAuth('admin'),ServiceImage.single('im
  *       500:
  *         description: Internal server error
  */
-router.put('/service/update/:id',userAuth,roleAuth('admin'),ServiceImage.single('image'), AdminController.serviceUpdate)
+router.put(
+  "/service/update/:id",
+  userAuth,
+  roleAuth("admin"),
+  ServiceImage.single("image"),
+  AdminController.serviceUpdate,
+);
 
 /**
  * @swagger
@@ -142,10 +184,12 @@ router.put('/service/update/:id',userAuth,roleAuth('admin'),ServiceImage.single(
  *       500:
  *         description: Internal server error
  */
-router.delete('/service/delete/:id',userAuth,roleAuth('admin'),AdminController.serviceDelete)
-
-
-
+router.delete(
+  "/service/delete/:id",
+  userAuth,
+  roleAuth("admin"),
+  AdminController.serviceDelete,
+);
 
 // ================= CONTACT =================
 
@@ -163,8 +207,15 @@ router.delete('/service/delete/:id',userAuth,roleAuth('admin'),AdminController.s
  *       500:
  *         description: Internal server error
  */
-router.get('/contact/list',userAuth,roleAuth('admin'),AdminController.contactList)
+router.get(
+  "/contact/list",
+  userAuth,
+  roleAuth("admin"),
+  AdminController.contactList,
+);
 
+
+// ----------- Contact ---------
 /**
  * @swagger
  * /api/admin/contact/create:
@@ -175,7 +226,7 @@ router.get('/contact/list',userAuth,roleAuth('admin'),AdminController.contactLis
  *       - cookieAuth: []
  *     requestBody:
  *       required: true
- *       content: 
+ *       content:
  *         application/json:
  *           schema:
  *             type: object
@@ -201,7 +252,12 @@ router.get('/contact/list',userAuth,roleAuth('admin'),AdminController.contactLis
  *       500:
  *         description: Internal server error
  */
-router.post('/contact/create',userAuth,roleAuth('admin'), AdminController.contactCreate)
+router.post(
+  "/contact/create",
+  userAuth,
+  roleAuth("admin"),
+  AdminController.contactCreate,
+);
 
 /**
  * @swagger
@@ -225,8 +281,12 @@ router.post('/contact/create',userAuth,roleAuth('admin'), AdminController.contac
  *       500:
  *         description: Internal server error
  */
-router.delete('/contact/delete:id',userAuth,roleAuth('admin'), AdminController.contactDelete)
-
+router.delete(
+  "/contact/delete:id",
+  userAuth,
+  roleAuth("admin"),
+  AdminController.contactDelete,
+);
 
 
 
@@ -246,8 +306,7 @@ router.delete('/contact/delete:id',userAuth,roleAuth('admin'), AdminController.c
  *       500:
  *         description: Internal server error
  */
-router.get('/user/list',userAuth,roleAuth('admin'),AdminController.userList)
-
+router.get("/user/list", userAuth, roleAuth("admin"), AdminController.userList);
 
 /**
  * @swagger
@@ -266,13 +325,19 @@ router.get('/user/list',userAuth,roleAuth('admin'),AdminController.userList)
  *             required:
  *               - name
  *               - email
+ *               - phone
  *               - password
+ *               - role
  *             properties:
  *               name:
  *                 type: string
  *               email:
- *                 type: string 
+ *                 type: string
  *               password:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               role:
  *                 type: string
  *     responses:
  *       201:
@@ -282,7 +347,12 @@ router.get('/user/list',userAuth,roleAuth('admin'),AdminController.userList)
  *       500:
  *         description: Internal server error
  */
-router.post('/user/create',userAuth,roleAuth('admin'),AdminController.userCreate)
+router.post(
+  "/user/create",
+  userAuth,
+  roleAuth("admin"),
+  AdminController.userCreate,
+);
 
 /**
  * @swagger
@@ -309,6 +379,8 @@ router.post('/user/create',userAuth,roleAuth('admin'),AdminController.userCreate
  *                 type: string
  *               email:
  *                 type: string
+ *               phone:
+ *                 type: string
  *     responses:
  *       200:
  *         description: User updated successfully
@@ -317,7 +389,12 @@ router.post('/user/create',userAuth,roleAuth('admin'),AdminController.userCreate
  *       500:
  *         description: Internal server error
  */
-router.put('/user/update/:id',userAuth,roleAuth('admin'),AdminController.userUpdate)
+router.put(
+  "/user/update/:id",
+  userAuth,
+  roleAuth("admin"),
+  AdminController.userUpdate,
+);
 
 /**
  * @swagger
@@ -341,8 +418,12 @@ router.put('/user/update/:id',userAuth,roleAuth('admin'),AdminController.userUpd
  *       500:
  *         description: Internal server error
  */
-router.delete('/user/delete/:id',userAuth,roleAuth('admin'),AdminController.userDelete)
-
+router.delete(
+  "/user/delete/:id",
+  userAuth,
+  roleAuth("admin"),
+  AdminController.userDelete,
+);
 
 
 
@@ -362,16 +443,19 @@ router.delete('/user/delete/:id',userAuth,roleAuth('admin'),AdminController.user
  *       500:
  *         description: Internal server error
  */
-router.get('/provider/list',userAuth,roleAuth('admin'),AdminController.providerList)
+router.get(
+  "/provider/list",
+  userAuth,
+  roleAuth("admin"),
+  AdminController.providerList,
+);
 
 /**
  * @swagger
  * /api/admin/provider/create:
  *   post:
- *     summary: Create a new service provider
+ *     summary: Create a new Service Provider
  *     tags: [Admin]
- *     security:
- *       - cookieAuth: []
  *     consumes:
  *       - multipart/form-data
  *     requestBody:
@@ -381,31 +465,58 @@ router.get('/provider/list',userAuth,roleAuth('admin'),AdminController.providerL
  *           schema:
  *             type: object
  *             required:
- *               - name
- *               - email
+ *               - userId
+ *               - category
+ *               - services
+ *               - location
+ *               - availability
  *             properties:
- *               name:
+ *               userId:
  *                 type: string
- *                 example: Michael Smith
- *               email:
+ *                 example: 65f2a1b2c3d4e5f678901234
+ *               category:
  *                 type: string
- *                 example: michael@example.com
- *               phone:
+ *                 example: Home Services
+ *               services:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 example: ["Cleaning","Sanitary"]
+ *               location:
  *                 type: string
- *                 example: "+91 9876543210"
+ *                 example: Mumbai
+ *               availability:
+ *                 type: string
+ *                 description: JSON string of availability array
+ *                 example: [{"days":["Monday","Tuesday"],"slots":["10AM-12PM","2PM-4PM"]}]
+ *               price:
+ *                 type: number
+ *                 example: 1500
+ *               rating:
+ *                 type: number
+ *                 example: 4.5
  *               image:
  *                 type: string
  *                 format: binary
- *                 description: Optional profile image
+ *                 description: Upload provider image (optional)
+ *     security:
+ *       - cookieAuth: []
  *     responses:
  *       201:
- *         description: Provider created successfully
+ *         description: Service provider created successfully
  *       400:
  *         description: Missing required fields
  *       500:
  *         description: Internal server error
  */
-router.post('/provider/create',userAuth,roleAuth('admin'),ServiceImage.single('image'),AdminController.providerCreate)
+router.post(
+  "/provider/create",
+  userAuth,
+  roleAuth("admin"),
+  ServiceImage.single("image"),
+  AdminController.providerCreate
+);
+
 
 /**
  * @swagger
@@ -447,7 +558,13 @@ router.post('/provider/create',userAuth,roleAuth('admin'),ServiceImage.single('i
  *       500:
  *         description: Internal server error
  */
-router.put('/provider/update/:id',userAuth,roleAuth('admin'),ServiceImage.single('image'), AdminController.providerUpdate)
+router.put(
+  "/provider/update/:id",
+  userAuth,
+  roleAuth("admin"),
+  ServiceImage.single("image"),
+  AdminController.providerUpdate,
+);
 
 /**
  * @swagger
@@ -471,10 +588,12 @@ router.put('/provider/update/:id',userAuth,roleAuth('admin'),ServiceImage.single
  *       500:
  *         description: Internal server error
  */
-router.delete('/provider/delete/:id',userAuth,roleAuth('admin'), AdminController.providerDelete)
-
-
-
+router.delete(
+  "/provider/delete/:id",
+  userAuth,
+  roleAuth("admin"),
+  AdminController.providerDelete,
+);
 
 // ================= BOOKINGS =================
 
@@ -492,7 +611,12 @@ router.delete('/provider/delete/:id',userAuth,roleAuth('admin'), AdminController
  *       500:
  *         description: Internal server error
  */
-router.get('/booking/list',userAuth,roleAuth('admin'), AdminController.bookingList)
+router.get(
+  "/booking/list",
+  userAuth,
+  roleAuth("admin"),
+  AdminController.bookingList,
+);
 
 /**
  * @swagger
@@ -516,7 +640,12 @@ router.get('/booking/list',userAuth,roleAuth('admin'), AdminController.bookingLi
  *       500:
  *         description: Internal server error
  */
-router.put('/booking/confirm/:id',userAuth,roleAuth('admin'), AdminController.bookingConfirm)
+router.put(
+  "/booking/confirm/:id",
+  userAuth,
+  roleAuth("admin"),
+  AdminController.bookingConfirm,
+);
 
 /**
  * @swagger
@@ -540,10 +669,12 @@ router.put('/booking/confirm/:id',userAuth,roleAuth('admin'), AdminController.bo
  *       500:
  *         description: Internal server error
  */
-router.put('/booking/cancel/:id',userAuth,roleAuth('admin'), AdminController.bookingCancel)
-
-
-
+router.put(
+  "/booking/cancel/:id",
+  userAuth,
+  roleAuth("admin"),
+  AdminController.bookingCancel,
+);
 
 // ================= REVIEWS =================
 
@@ -561,7 +692,12 @@ router.put('/booking/cancel/:id',userAuth,roleAuth('admin'), AdminController.boo
  *       500:
  *         description: Internal server error
  */
-router.get('/review/list',userAuth,roleAuth('admin'), AdminController.reviewList)
+router.get(
+  "/review/list",
+  userAuth,
+  roleAuth("admin"),
+  AdminController.reviewList,
+);
 
 /**
  * @swagger
@@ -585,7 +721,12 @@ router.get('/review/list',userAuth,roleAuth('admin'), AdminController.reviewList
  *       500:
  *         description: Internal server error
  */
-router.put('/review/approve/:id',userAuth,roleAuth('admin'), AdminController.reviewApprove)
+router.put(
+  "/review/approve/:id",
+  userAuth,
+  roleAuth("admin"),
+  AdminController.reviewApprove,
+);
 
 /**
  * @swagger
@@ -609,8 +750,12 @@ router.put('/review/approve/:id',userAuth,roleAuth('admin'), AdminController.rev
  *       500:
  *         description: Internal server error
  */
-router.delete('/review/reject/:id',userAuth,roleAuth('admin'), AdminController.reviewReject)
-
+router.delete(
+  "/review/reject/:id",
+  userAuth,
+  roleAuth("admin"),
+  AdminController.reviewReject,
+);
 
 /**
  * @swagger
@@ -634,11 +779,11 @@ router.delete('/review/reject/:id',userAuth,roleAuth('admin'), AdminController.r
  *       500:
  *         description: Internal server error
  */
-router.delete('/review/delete/:id',userAuth,roleAuth('admin'), AdminController.reviewDelete)
+router.delete(
+  "/review/delete/:id",
+  userAuth,
+  roleAuth("admin"),
+  AdminController.reviewDelete,
+);
 
-
-
-
-
-
-module.exports = router
+module.exports = router;
