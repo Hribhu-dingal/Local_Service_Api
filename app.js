@@ -7,13 +7,13 @@ const cors = require('cors')
 
 
 // Swagger
-// const swaggerJsDoc = require('swagger-jsdoc');
-// const swaggerUi = require('swagger-ui-express');
-// const SwaggerOptions = require('./swagger.json');
-// const swaggerDocument = swaggerJsDoc(SwaggerOptions);
+const swaggerJsDoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
+const SwaggerOptions = require('./swagger.json');
+const swaggerDocument = swaggerJsDoc(SwaggerOptions);
 
-const swaggerUi = require("swagger-ui-express");
-const swaggerDocument = require("./swagger.json");
+// const swaggerUi = require("swagger-ui-express");
+// const swaggerDocument = require("./swagger.json");
 
 const app = express()
 dbcon()
@@ -28,16 +28,16 @@ const allowedOrigins = [
 
 
 app.use(cors())
-  // cors({
-  //   origin: function (origin, callback) {
-  //     if (allowedOrigins.includes(origin)) {
-  //       callback(null, true);
-  //     } else {
-  //       callback(new Error("Not allowed by CORS"));
-  //     }
-  //   },
-  //   credentials: true,
-  // })
+//   cors({
+//     origin: function (origin, callback) {
+//       if (allowedOrigins.includes(origin)) {
+//         callback(null, true);
+//       } else {
+//         callback(new Error("Not allowed by CORS"));
+//       }
+//     },
+//     credentials: true,
+//   })
 // );
 
 // app.use(
@@ -71,16 +71,16 @@ app.use('/uploads',express.static(path.join(__dirname, 'uploads')));
 app.use(cookieParser())
 app.use(express.urlencoded({extended:true}))
 
-// app.use(
-//   "/api-docs",
-//   swaggerUi.serve,
-//   swaggerUi.setup(swaggerDocument, {
-//     swaggerOptions: {
-//       withCredentials: true,
-//     },
-//   })
-// );
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerDocument, {
+    swaggerOptions: {
+      withCredentials: true,
+    },
+  })
+);
+// app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 
 // // API
