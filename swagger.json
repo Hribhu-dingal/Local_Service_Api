@@ -1,58 +1,37 @@
 {
-  "swaggerDefinition": {
-    "openapi": "3.0.0",
-    "info": {
-      "title": "Local Service Booking",
-      "version": "1.0.0",
-      "description": "Local Service Booking API documentation",
-      "contact": {
-        "name": "Hribhu Dingal"
-      }
-    },
-    "servers": [
-      {
-        "url": "http://localhost:3050",
-        "description": "Local Service Booking Api"
-      },
-      {
-        "url": "https://local-service-api-1g2n.onrender.com",
-        "description": "Local Service Booking Api (Live link)"
-      }
-    ],
-    "components": {
-      "securitySchemes": {
-        "cookieAuth": {
-          "type": "apiKey",
-          "in": "cookie",
-          "name": "AccessToken",
-          "description": "Enter JWT token here to authorize"
-        },
-        "freelancerAuth": {
-          "type": "http",
-          "scheme": "bearer",
-          "bearerFormat": "JWT",
-          "description": "Enter your Freelancer JWT token here to authorize freelancer APIs"
-        }
-      }
-    },
-    "tags": [
-      {
-        "name": "Auth",
-        "description": "Authentication API"
-      },
-      {
-        "name": "Admin",
-        "description": " Admin management API"
-      },
-      {
-        "name": "Frontend",
-        "description": "Frontend API"
-      },
-      {
-        "name": "Service Provider",
-        "description": "Service Provider Management API"
-      }
-    ]
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Local Service Booking",
+    "version": "1.0.0",
+    "description": "Local Service Booking API documentation",
+    "contact": {
+      "name": "Hribhu Dingal"
+    }
   },
-  "apis": ["./app.js", "./app/routes/*.js"]
+  "servers": [
+    {
+      "url": "http://localhost:3050",
+      "description": "Local Service Booking Api"
+    },
+    {
+      "url": "https://local-service-api-1g2n.onrender.com",
+      "description": "Live API"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "cookieAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "accessToken"
+      }
+    }
+  },
+  "tags": [
+    { "name": "Auth" },
+    { "name": "Admin" },
+    { "name": "Frontend" },
+    { "name": "Service Provider" }
+  ],
+  "paths": {}
 }
