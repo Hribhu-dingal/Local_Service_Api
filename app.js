@@ -68,15 +68,16 @@ app.use('/uploads',express.static(path.join(__dirname, 'uploads')));
 app.use(cookieParser())
 app.use(express.urlencoded({extended:true}))
 
-app.use(
-  "/api-docs",
-  swaggerUi.serve,
-  swaggerUi.setup(swaggerDocument, {
-    swaggerOptions: {
-      withCredentials: true,
-    },
-  })
-);
+// app.use(
+//   "/api-docs",
+//   swaggerUi.serve,
+//   swaggerUi.setup(swaggerDocument, {
+//     swaggerOptions: {
+//       withCredentials: true,
+//     },
+//   })
+// );
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 
 // // API
