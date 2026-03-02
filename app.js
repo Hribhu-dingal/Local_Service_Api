@@ -17,14 +17,50 @@ dbcon()
 
 const isProduction = process.env.NODE_ENV === "production";
 
+const allowedOrigins = [
+  "http://localhost:5173", 
+  "http://localhost:3050", 
+  "https://local-service-api-1g2n.onrender.com" 
+];
+
+
 app.use(
   cors({
-    origin: isProduction
-      ? ["https://local-service-api-1g2n.onrender.com"]
-      : ["http://localhost:3050"],
+    origin: function (origin, callback) {
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
+
+// app.use(
+//   cors({
+//     origin: isProduction
+//       ? ["https://local-service-api-1g2n.onrender.com"]
+//       : ["http://localhost:3050"],
+//     credentials: true,
+//   })
+// );
+
+// app.use(
+//   cors({
+//     origin: function (origin, callback) {
+//       if (
+//         !origin || 
+//         origin.startsWith("http://localhost:") 
+//       ) {
+//         callback(null, true);
+//       } else {
+//         callback(new Error("Not allowed by CORS"));
+//       }
+//     },
+//     credentials: true,
+//   })
+// );
 
 app.use(express.json())
 app.use(express.static('public'))
