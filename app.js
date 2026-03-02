@@ -7,10 +7,13 @@ const cors = require('cors')
 
 
 // Swagger
-const swaggerJsDoc = require('swagger-jsdoc');
-const swaggerUi = require('swagger-ui-express');
-const SwaggerOptions = require('./swagger.json');
-const swaggerDocument = swaggerJsDoc(SwaggerOptions);
+// const swaggerJsDoc = require('swagger-jsdoc');
+// const swaggerUi = require('swagger-ui-express');
+// const SwaggerOptions = require('./swagger.json');
+// const swaggerDocument = swaggerJsDoc(SwaggerOptions);
+
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("./swagger.json");
 
 const app = express()
 dbcon()
