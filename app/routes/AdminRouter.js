@@ -87,7 +87,10 @@ router.get(
  *               title:
  *                 type: string
  *                 example: Home Cleaning
- *               description:
+ *               subtitle:
+ *                 type: string
+ *                 example: Best Home Cleaning Service
+ *               content:
  *                 type: string
  *                 example: Professional home cleaning service with trained staff.
  *               image:
@@ -137,7 +140,10 @@ router.post(
  *               title:
  *                 type: string
  *                 example: Updated Service Title
- *               description:
+ *               subtitle:
+ *                 type: string
+ *                 example: Updated Service SubTitle
+ *               content:
  *                 type: string
  *                 example: Updated description for this service
  *               image:
