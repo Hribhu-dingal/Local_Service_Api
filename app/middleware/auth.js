@@ -10,7 +10,7 @@ const userAuth = async (req, res, next) => {
       req.cookies.providerToken;
 
     if (!token) {
-      req.flash("message", "Please login to continue");
+      req.status(404).json({message: "Please login to continue"});
       return res.redirect("/login");
     }
 
@@ -18,7 +18,7 @@ const userAuth = async (req, res, next) => {
 
     const user = await UserModel.findById(decoded._id).select("-password");
     if (!user) {
-      req.flash("message", "User not found");
+      req.status(404).json({message: "User not found"});
       res.clearCookie("userToken");
       res.clearCookie("adminToken");
       res.clearCookie("providerToken");
@@ -33,7 +33,7 @@ const userAuth = async (req, res, next) => {
     res.clearCookie("userToken");
     res.clearCookie("adminToken");
     res.clearCookie("providerToken");
-    req.flash("message", "Session expired, please login again");
+    req.status(500).json({message: "Session expired, please login again"});
     return res.redirect("/login");
   }
 };
@@ -45,19 +45,19 @@ const roleAuth = (role) => {
   return (req, res, next) => {
     try {
       if (!req.user) {
-        req.flash("message", "Please login first");
+        req.status(404).json("message", "Please login first");
         return res.redirect("/login");
       }
 
       if (req.user.role !== role) {
-        req.flash("message", `Access denied: only ${role}s can access this page`);
+        req.status(403).json({message: `Access denied: only ${role}s can access this page`});
         return res.redirect("/login");
       }
 
       next();
     } catch (err) {
       console.error("RoleAuth error:", err.message);
-      req.flash("message", "Authorization failed");
+      req.status(401).json({message: "Authorization failed"});
       return res.redirect("/login");
     }
   };
