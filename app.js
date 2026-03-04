@@ -12,25 +12,48 @@ const swaggerUi = require('swagger-ui-express');
 const SwaggerOptions = require('./swagger.json');
 const swaggerDocument = swaggerJsDoc(SwaggerOptions);
 
-// const swaggerUi = require("swagger-ui-express");
-// const swaggerDocument = require("./swagger.json");
 
 const app = express()
 dbcon()
 
 const isProduction = process.env.NODE_ENV === "production";
 
-const allowedOrigins = [
-  "http://localhost:5173", 
-  "http://localhost:3050", 
-  "https://local-service-api-1g2n.onrender.com" 
-];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Allow Postman / server-to-server requests (no origin)
+      if (!origin) return callback(null, true);
+
+      // Allow all localhost ports (Vite, CRA, etc.)
+      if (origin.startsWith("http://localhost:")) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS: " + origin));
+    },
+    credentials: true,
+  })
+);
+
+// const allowedOrigins = [
+//   "http://localhost:5173", 
+//   "http://localhost:3050", 
+//   "https://local-service-api-1g2n.onrender.com" 
+// ];
 
 
-app.use(cors())
+// app.use(cors())
+
+
+// app.use(
 //   cors({
 //     origin: function (origin, callback) {
-//       if (allowedOrigins.includes(origin)) {
+//       if (
+//         !origin || // Postman etc.
+//         origin.startsWith("http://localhost:") ||
+//         origin === "https://your-frontend-domain.com"
+//       ) {
 //         callback(null, true);
 //       } else {
 //         callback(new Error("Not allowed by CORS"));
@@ -39,15 +62,8 @@ app.use(cors())
 //     credentials: true,
 //   })
 // );
+  
 
-// app.use(
-//   cors({
-//     origin: isProduction
-//       ? ["https://local-service-api-1g2n.onrender.com"]
-//       : ["http://localhost:3050"],
-//     credentials: true,
-//   })
-// );
 
 // app.use(
 //   cors({
@@ -55,6 +71,7 @@ app.use(cors())
 //       if (
 //         !origin || 
 //         origin.startsWith("http://localhost:") 
+//         // origin.startsWith("https://local-service-api-1g2n.onrender.com")
 //       ) {
 //         callback(null, true);
 //       } else {
